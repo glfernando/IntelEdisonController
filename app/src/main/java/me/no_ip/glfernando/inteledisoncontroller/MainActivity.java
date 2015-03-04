@@ -1,16 +1,22 @@
 package me.no_ip.glfernando.inteledisoncontroller;
 
+import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+    private ListView mListView;
+    private DrawerLayout mDrawerLayout;
+    private String []mItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,30 +27,39 @@ public class MainActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer_layout);
-        final ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+        mItems = getResources().getStringArray(R.array.drawer_items);
+        if (mItems == null)
+            finish();
+
+        /* replace home with app name */
+        mItems[0] = getResources().getString(R.string.app_name);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.navigation_drawer_layout);
+        final ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(R.string.drawer_open);
                 invalidateOptionsMenu();
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                getSupportActionBar().setTitle(R.string.app_name);
                 invalidateOptionsMenu();
             }
         };
 
-        drawerLayout.setDrawerListener(drawerToggle);
-        drawerLayout.post(new Runnable() {
+        mDrawerLayout.setDrawerListener(drawerToggle);
+        mDrawerLayout.post(new Runnable() {
             @Override
             public void run() {
                 drawerToggle.syncState();
             }
         });
+
+        mListView = (ListView) findViewById(R.id.drawer_list_view);
+        mListView.setAdapter(new DrawerItemAdapter(this));
+        mListView.setOnItemClickListener(this);
     }
 
 
@@ -68,5 +83,14 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //Toast.makeText(this, "option selected " + position, Toast.LENGTH_SHORT).show();
+        mListView.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(Gravity.LEFT);
+        getSupportActionBar().setTitle(mItems[position]);
+
     }
 }
