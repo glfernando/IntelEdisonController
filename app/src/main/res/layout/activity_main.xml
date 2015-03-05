@@ -22,19 +22,31 @@
         android:background="#ffffff"
         android:orientation="vertical">
 
-        <ImageView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:background="@color/accent"
-            android:elevation="8dp"/>
+            android:paddingTop="24dp"
+            android:elevation="8dp">
+
+            <ImageView
+                android:id="@+id/logo_image_view"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/intel_edison"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/app_bar_top_padding"
+                android:paddingLeft="16dp"
+                />
+        </RelativeLayout>
 
         <ListView
             android:id="@+id/drawer_list_view"
             android:layout_width="280dp"
             android:layout_height="match_parent"
             android:divider="@null"
-            android:dividerHeight="0dp"
-            />
+            android:dividerHeight="0dp" />
 
     </LinearLayout>
 
