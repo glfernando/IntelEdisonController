@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/top_padding_fragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connection_type"
+        android:id="@+id/textView_conn_type"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textSize="18sp"
+        />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner_conn_type"
+        android:layout_below="@+id/textView_conn_type"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText_ip_addr"
+        android:layout_below="@id/spinner_conn_type"
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"
+        android:text="192.168.1.0" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText_port"
+        android:inputType="number"
+        android:layout_toRightOf="@id/editText_ip_addr"
+        android:layout_below="@id/spinner_conn_type"
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"
+        android:text="8086" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?android:attr/borderlessButtonStyle"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="@color/primary"
+        android:padding="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/connect"
+        android:id="@+id/button_connect"
+        android:layout_below="@+id/editText_ip_addr"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
