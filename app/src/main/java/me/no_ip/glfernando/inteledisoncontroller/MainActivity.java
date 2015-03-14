@@ -1,6 +1,5 @@
 package me.no_ip.glfernando.inteledisoncontroller;
 
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -129,11 +130,32 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //Toast.makeText(this, "option selected " + position, Toast.LENGTH_SHORT).show();
-        mListView.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(Gravity.LEFT);
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment f;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+        if (fm.getBackStackEntryCount() > 0) {
+            fm.popBackStack();
+        }
+
+        switch (position) {
+            case 0: //Home
+                //f = new HomeFragment();
+                return;
+            case 1: //GPIO
+                f = new GpioFragment();
+                break;
+            default:
+                Toast.makeText(this, "Option not supported", Toast.LENGTH_SHORT).show();
+                return;
+        }
+
+        mListView.setItemChecked(position, true);
         getSupportActionBar().setTitle(mItems[position]);
 
+        // Replace with new fragment and add it to the back stack
+        ft.replace(R.id.fragment_container, f).addToBackStack(null).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
     }
 
     private Bitmap getCircleBitmap(Bitmap bitmap) {
