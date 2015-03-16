@@ -1,5 +1,7 @@
 package me.no_ip.glfernando.inteledisoncontroller;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,9 +13,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.melnykov.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.no_ip.glfernando.inteledisoncontroller.AddGpioFragment.*;
 
 /**
  * Created by fernando on 3/12/15.
@@ -21,7 +28,9 @@ import java.util.List;
  */
 public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchListener {
     private static final String TAG = "IntelEdisonController";
+    private static final int REQUEST_GPIO = 0;
     MediaPlayer mPlayer;
+    GpioRecyclerAdapter mAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -34,21 +43,36 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
         RecyclerView.LayoutManager lm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(lm);
 
-        GpioRecyclerAdapter a = new GpioRecyclerAdapter();
-        rv.setAdapter(a);
-        a.setTouchListener(this);
+        mAdapter = new GpioRecyclerAdapter();
+        rv.setAdapter(mAdapter);
+        mAdapter.setTouchListener(this);
 
         // init gpio list TODO: is it really needed? revisit
         List<Gpio> list = new ArrayList<>();
-
-        list.add(new Gpio(100, 1, true, 1));
-        list.add(new Gpio(101, 2, true, 1));
-
-        a.updateList(list);
+        mAdapter.updateList(list);
 
         //Setup push button sound
         mPlayer = MediaPlayer.create(getActivity(), R.raw.push_button_down);
+
+        //Attach FAB to RecyclerView
+        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fab);
+        fab.attachToRecyclerView(rv);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(getActivity(), "FAB clicked", Toast.LENGTH_SHORT).show();
+                addNewGpio();
+            }
+        });
+
         return v;
+    }
+
+    private void addNewGpio() {
+        AddGpioFragment add = new AddGpioFragment();
+        add.setTargetFragment(GpioFragment.this, REQUEST_GPIO);
+        add.show(getActivity().getSupportFragmentManager(), "add_gpio");
     }
 
     @Override
@@ -62,5 +86,17 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
                 Log.d(TAG, "action up gpio " + gpio.gpio);
         }
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK) return;
+
+        if (requestCode == REQUEST_GPIO) {
+            int gpio = data.getIntExtra(EXTRA_GPIO_NUM, 0);
+            mAdapter.addItem(new Gpio(gpio, gpio, true, 0));
+        }
+
+
     }
 }

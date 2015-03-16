@@ -59,7 +59,7 @@ public class GpioRecyclerAdapter extends RecyclerView.Adapter<GpioRecyclerAdapte
     }
 
     public void addItem(Gpio g) {
-        addItem(mGpio.size() - 1, g);
+        addItem(mGpio.size(), g);
     }
 
     public void removeItem(int p) {

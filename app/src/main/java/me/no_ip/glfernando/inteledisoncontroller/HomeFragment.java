@@ -42,7 +42,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         mSpinner.setAdapter(adapter);
 
         mButton = (Button) v.findViewById(R.id.button_connect);
-        mButton.setText("connect");
+        if (mSocket != null && mSocket.isConnected()) {
+            mButton.setText("disconnect");
+        } else {
+            mButton.setText("connect");
+        }
         mButton.setOnClickListener(this);
 
         return v;

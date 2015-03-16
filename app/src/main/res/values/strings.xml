@@ -16,9 +16,11 @@
         <item>TCP/IP</item>
         <item>Bluetooth</item>
     </string-array>
+    <string name="choose_gpio">Choose a GPIO</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="connection_type">Connection Type</string>
     <string name="connect">connect</string>
     <string name="hello_blank_fragment">hello blank Fragment</string>
+    <string name="ok">Add</string>
 </resources>
