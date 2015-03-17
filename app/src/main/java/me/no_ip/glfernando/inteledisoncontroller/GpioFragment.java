@@ -31,6 +31,7 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
     private static final int REQUEST_GPIO = 0;
     MediaPlayer mPlayer;
     GpioRecyclerAdapter mAdapter;
+    private IntelEdisonComm mComm;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,6 +70,12 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
         return v;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mComm = (IntelEdisonComm) getActivity();
+    }
+
     private void addNewGpio() {
         AddGpioFragment add = new AddGpioFragment();
         add.setTargetFragment(GpioFragment.this, REQUEST_GPIO);
@@ -81,9 +88,11 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
             case MotionEvent.ACTION_DOWN:
                 Log.d(TAG, "action down gpio " + gpio.gpio);
                 mPlayer.start();
+                mComm.sendData("{\"type\":\"gpio\", \"num\":" + gpio.gpio + ",\"dir\":\"out\", \"value\":1" + "}\n");
                 break;
             case MotionEvent.ACTION_UP:
                 Log.d(TAG, "action up gpio " + gpio.gpio);
+                mComm.sendData("{\"type\":\"gpio\", \"num\":" + gpio.gpio + ",\"dir\":\"out\", \"value\":0" + "}\n");
         }
         return true;
     }

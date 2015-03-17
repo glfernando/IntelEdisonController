@@ -32,7 +32,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,HomeFragment.Connection {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener,HomeFragment.Connection, IntelEdisonComm {
     private ListView mListView;
     private DrawerLayout mDrawerLayout;
     private String []mItems;
@@ -202,5 +202,21 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         mConnected = false;
         mStatus.setText("Disconnected");
         mStatus.setBackgroundColor(Color.RED);
+    }
+
+    @Override
+    public void sendData(String data) {
+        if (mConnected == false) {
+            Toast.makeText(this, "Not connected to Edison Board", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        byte []msg = data.getBytes();
+
+        try {
+            mOut.write(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
