@@ -26,11 +26,47 @@ import java.net.UnknownHostException;
  * Created by fernando on 3/9/15.
  */
 public class HomeFragment extends Fragment implements View.OnClickListener {
-    private static final String TAG = "IntelEdisonController";
+    private static final String TAG = "HomeFragment";
+    private static final String CONNECTED = "me.noip.glfernando.connected";
+    private static final String ADDR = "me.noip.glfernando.addr";
+    private static final String PORT = "me.noip.glfernando.port";
+    private static final String HIDDEN = "me.noip.glfernando.home.hidden";
     private Spinner mSpinner;
     private Connection mConn;
     private Button mButton;
     private Socket mSocket;
+    private boolean mConnected;
+    private String mAddr;
+    private int mPort;
+    private boolean mHidden;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+        super.onCreate(savedInstanceState);
+
+        //Check if we should restore the connection
+        if (savedInstanceState != null) {
+            if (mSocket == null) {
+                mConnected = savedInstanceState.getBoolean(CONNECTED);
+                mAddr = savedInstanceState.getString(ADDR);
+                mPort = savedInstanceState.getInt(PORT);
+
+                if (mConnected == true) {
+                    if (connect(mAddr, mPort) == true) {
+                        mConn.connect(mSocket);
+                    } else {
+                        mConnected = false;
+                    }
+                }
+            }
+
+            //check if fragment was hidden
+            mHidden = savedInstanceState.getBoolean(HIDDEN);
+            if (mHidden)
+                getFragmentManager().beginTransaction().hide(this).commit();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -42,11 +78,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         mSpinner.setAdapter(adapter);
 
         mButton = (Button) v.findViewById(R.id.button_connect);
-        if (mSocket != null && mSocket.isConnected()) {
-            mButton.setText("disconnect");
-        } else {
-            mButton.setText("connect");
-        }
         mButton.setOnClickListener(this);
 
         return v;
@@ -54,8 +85,68 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onAttach(Activity activity) {
+        Log.d(TAG, "onAttach");
         super.onAttach(activity);
         mConn = (Connection)activity;
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(CONNECTED, mConnected);
+        outState.putString(ADDR, mAddr);
+        outState.putInt(PORT, mPort);
+        outState.putBoolean(HIDDEN, mHidden);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (mConnected == true) {
+                mButton.setText("disconnect");
+        }
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated");
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();
+
+        if (mConnected == true)
+            disconnect();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        mHidden = hidden;
     }
 
     @Override
@@ -75,35 +166,55 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             imm.hideSoftInputFromWindow(getView().getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
             Log.d(TAG, "Button Text " + mButton.getText().toString());
-            if (mButton.getText().toString() == "connect") {
-                try {
-                    InetAddress server_addr = InetAddress.getByName(addr.getText().toString());
-                    mSocket = new Socket(server_addr, Integer.valueOf(port.getText().toString()));
-                    if (mConn.connect(mSocket) == true) {
-                        mButton.setText("disconnect");
-                    }
-                } catch (UnknownHostException e) {
-                    Toast.makeText(getActivity(), "Unknown Host " + addr.getText() + ":" + port.getText(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
+            if (mConnected == false) {
+                if (connect(addr.getText().toString(), Integer.valueOf(port.getText().toString())) == true) {
+                    mConn.connect(mSocket);
+                    mButton.setText("disconnect");
                 }
             } else {
+                mButton.setText("connect");
+                disconnect();
                 mConn.disconnect();
-                try {
-                    mSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 mButton.setText("connect");
             }
 
         }
     }
 
+    private boolean connect(String addr, int port) {
+        try {
+            InetAddress server_addr = InetAddress.getByName(addr);
+            mSocket = new Socket(server_addr, port);
+            mConnected = true;
+            mAddr = addr;
+            mPort = port;
+
+            return true;
+        } catch (UnknownHostException e) {
+            Toast.makeText(getActivity(), "Unknown Host " + addr + ":" + port, Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean disconnect() {
+        try {
+            mSocket.close();
+            mConnected = false;
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public interface Connection {
         public boolean connect(Socket s);
+
         public void disconnect();
 
     }

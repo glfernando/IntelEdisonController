@@ -53,6 +53,10 @@ public class GpioRecyclerAdapter extends RecyclerView.Adapter<GpioRecyclerAdapte
         notifyDataSetChanged();
     }
 
+    public List<Gpio> getList() {
+        return mGpio;
+    }
+
     public void addItem(int p, Gpio g) {
         mGpio.add(p, g);
         notifyItemInserted(p);

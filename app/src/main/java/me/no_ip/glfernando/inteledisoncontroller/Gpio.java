@@ -1,10 +1,12 @@
 package me.no_ip.glfernando.inteledisoncontroller;
 
+import java.io.Serializable;
+
 /**
  * Created by fernando on 3/13/15.
  * Gpio Class
  */
-public class Gpio {
+public class Gpio implements Serializable{
     public int gpio;
     public int pin;
     public boolean out;

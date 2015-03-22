@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.melnykov.fab.FloatingActionButton;
@@ -27,11 +28,42 @@ import static me.no_ip.glfernando.inteledisoncontroller.AddGpioFragment.*;
  * Gpio Fragment
  */
 public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchListener {
-    private static final String TAG = "IntelEdisonController";
+    private static final String TAG = "GpioFragment";
     private static final int REQUEST_GPIO = 0;
+    private static final String GPIO_LIST = "me.noip.glfernando.gpio_list";
+    private static final java.lang.String HIDDEN = "me.noip.glfernando.gpio.hidden";
     MediaPlayer mPlayer;
     GpioRecyclerAdapter mAdapter;
     private IntelEdisonComm mComm;
+    private List<Gpio> mList;
+    private boolean mHidden;
+
+    @Override
+    public void onAttach(Activity activity) {
+        Log.d(TAG, "onAttach");
+        super.onAttach(activity);
+
+        mComm = (IntelEdisonComm)activity;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            //check if fragment was hidden
+            mHidden = savedInstanceState.getBoolean(HIDDEN);
+            if (mHidden)
+                getFragmentManager().beginTransaction().hide(this).commit();
+        }
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        mHidden = hidden;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,9 +80,13 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
         rv.setAdapter(mAdapter);
         mAdapter.setTouchListener(this);
 
-        // init gpio list TODO: is it really needed? revisit
-        List<Gpio> list = new ArrayList<>();
-        mAdapter.updateList(list);
+        // init gpio list
+        if (savedInstanceState != null)
+            mList = (List<Gpio>) savedInstanceState.getSerializable(GPIO_LIST);
+        else
+            mList = new ArrayList<>();
+
+        mAdapter.updateList(mList);
 
         //Setup push button sound
         mPlayer = MediaPlayer.create(getActivity(), R.raw.push_button_down);
@@ -72,14 +108,49 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
-        mComm = (IntelEdisonComm) getActivity();
     }
 
     private void addNewGpio() {
         AddGpioFragment add = new AddGpioFragment();
         add.setTargetFragment(GpioFragment.this, REQUEST_GPIO);
         add.show(getActivity().getSupportFragmentManager(), "add_gpio");
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(GPIO_LIST, (java.io.Serializable) mAdapter.getList());
+        outState.putBoolean(HIDDEN, mHidden);
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView");
+        super.onDestroyView();
+
+        mPlayer.release();
+        mPlayer = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
@@ -105,7 +176,5 @@ public class GpioFragment extends Fragment implements GpioRecyclerAdapter.TouchL
             int gpio = data.getIntExtra(EXTRA_GPIO_NUM, 0);
             mAdapter.addItem(new Gpio(gpio, gpio, true, 0));
         }
-
-
     }
 }
