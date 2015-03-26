@@ -76,10 +76,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             Log.d(TAG, "New Activity");
             FragmentTransaction t = getSupportFragmentManager().beginTransaction();
             //Add all fragments
-            Fragment[] frags = new Fragment[] {new HomeFragment(), new GpioFragment()};
+            Fragment[] frags = new Fragment[] {new HomeFragment(), new GpioFragment(), new PwmFragment()};
 
-            for (Fragment f: frags)
+            for (Fragment f: frags) {
                 t.add(R.id.fragment_container, f, f.getClass().getName());
+                if (f.getClass().getName() != HomeFragment.class.getName()) {
+                    t.hide(f);
+                }
+            }
             t.commit();
 
         } else {
@@ -203,6 +207,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 break;
             case 1:
                 ftag = GpioFragment.class.getName();
+                break;
+            case 2:
+                ftag = PwmFragment.class.getName();
                 break;
             default:
                 Toast.makeText(this, "Option " + mItems[position] + " not supported", Toast.LENGTH_SHORT)

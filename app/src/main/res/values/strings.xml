@@ -23,4 +23,6 @@
     <string name="connect">connect</string>
     <string name="hello_blank_fragment">hello blank Fragment</string>
     <string name="ok">Add</string>
+    <string name="Servo">Servo</string>
+    <string name="choose_pwm">Choose PWM</string>
 </resources>
